@@ -2,8 +2,8 @@ import numpy as np
 
 from dataclasses import dataclass
 
-from .qtree import QTree
-from .maps import QTreeMap, QTreeDecomposition
+from . import QTree
+from . import QTreeMap, QTreeDecomposition
 
 @dataclass
 class Result:

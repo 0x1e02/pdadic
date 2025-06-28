@@ -1,9 +1,10 @@
-from contextlib import contextmanager
 import time
-from .maps import QTreeMap
-
 import tracemalloc
+
+from contextlib import contextmanager
 from dataclasses import dataclass
+
+from . import QTreeMap
 
 @dataclass
 class TimeResult:

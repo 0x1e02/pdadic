@@ -1,2 +1,4 @@
-from .maps import  QTreeMap, QTreeDecomposition
-from .qtree import QTree, NAryTree
+from .maps import  QTreeMap
+from .maps import QTreeDecomposition
+from .qtree import QTree
+from .qtree import NAryTree

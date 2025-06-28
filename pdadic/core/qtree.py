@@ -7,11 +7,8 @@ from .types import RealFunction
 from .types import Integrator
 from .types import Interval
 
-import numpy.typing as npt
-from typing import NewType
-
-type Coefficients = npt.NDArray
-type Contribution = npt.NDArray
+from .types import Coefficients
+from .types import Contribution
 
 na = None
 inv = lambda A: np.conj(A.T)

@@ -1,6 +1,7 @@
 import numpy.typing as npt
 from typing import Callable
 from typing import Sequence
+from typing import NewType
 
 type Number = float | complex
 type RealFunction = Callable[[float], Number]
@@ -8,6 +9,8 @@ type DiscreteFunction = Sequence[Number]
 type DiscreteFunctionFunnel = Sequence[DiscreteFunction]
 type Integrator = Callable[[RealFunction, float, float], Number]
 
+type Coefficients = npt.NDArray
+type Contribution = npt.NDArray
 
 class Interval:
     """

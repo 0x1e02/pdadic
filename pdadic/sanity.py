@@ -3,7 +3,8 @@ import numpy as np
 from dataclasses import dataclass
 
 from . import QTree
-from . import QTreeMap, QTreeDecomposition
+from . import QTreeMap
+from . import QTreeDecomposition
 
 @dataclass
 class Result:

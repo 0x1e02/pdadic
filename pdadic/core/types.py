@@ -1,3 +1,8 @@
+"""
+Internally used type declarations.
+"""
+
+
 import numpy.typing as npt
 from typing import Callable
 from typing import Sequence
@@ -14,7 +19,7 @@ type Contribution = npt.NDArray
 
 class Interval:
     """
-    Closed interval usefull for integration.
+    Runtime checked interval, used for domains of integration.
     """
 
     def __init__(self, a: float, b: float):

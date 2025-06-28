@@ -1,3 +1,6 @@
+"""
+Implements the QTree class.
+"""
 import numpy as np
 
 from .types import Number
@@ -15,10 +18,16 @@ inv = lambda A: np.conj(A.T)
 
 
 class Layer:
+    """
+    Encapsulates layer based operations for the QTree class.
+    """
+
     def __init__(self, n: int, q: int, real: bool = False):
         """
-        Provides logic for computing q-wavelet components of functions defined
-        on n elements.
+        Specifies a layer by the total number of nodes and
+        the parent degree.
+        
+        Optionally only deals with real components.
         """
         assert n % q == 0, f"{n=} must be divisible by {q=}"
 
@@ -31,7 +40,8 @@ class Layer:
     @staticmethod
     def _get_fft_mat(q: int) -> np.ndarray:
         """
-        Generates an appropriatly sized fft matrix for q-wavelets component analysis.
+        Generates an appropriatly sized fft matrix for
+        q-wavelets component analysis.
         """
         
         A = np.arange(q)
@@ -43,8 +53,8 @@ class Layer:
 
     def get_coefficients(self, func: DiscreteFunction) -> Coefficients:
         """
-        Computes the coefficients of q-wavelet components analysis, with
-        wavelets supported in
+        Computes the coefficients of q-wavelet components
+        analysis, with wavelets supported in
             [0..q-1], [q..2q-1], ..., [kq..n-1].
         """
         assert len(func) == self.n, f"{len(func)=} is not {self.n}"
@@ -57,7 +67,7 @@ class Layer:
 
     def get_contribution(self, coeff: Coefficients) -> DiscreteFunction:
         """
-        Combines the coefficients of q-wavelet component analysis 
+        Combines the coefficients of q-wavelet component analysis.
         """
 
         g = (self.W[:,1:] @ coeff[1:,:]).T
@@ -66,18 +76,17 @@ class Layer:
 
 class QTree:
     """
-    A QTree is a finite regulary branching tree. It is specified by providing
-    a tuple of so called branching numbers Q=(q_1,...,q_N). By convention the
-    QTree for the empty tuple is taken to be a single root node without any
-    edges.
+    A QTree is a finite regulary branching tree. It is
+    specified by providing a tuple of so called branching
+    numbers Q=(q_1,...,q_N).
+    
+    By convention the QTree for the empty tuple is taken to
+    be a single root node without any edges.
     """
 
     def __init__(self, Q: list[int]):
-        """A QTree is a finite regulary branching tree. It is defined by an
-        ordered set Q, called
-
-        Provides an interface for dealing with functions on finite regulary
-        branching trees with regularities Q, starting with the root.
+        """
+        Instanciates the QTree and precomputes some attributes.
         """
         
         self.Q = Q
@@ -91,7 +100,8 @@ class QTree:
     @staticmethod
     def _trapezoid_integrator(func: RealFunction, x: float, y: float):
         """
-        Cheap method for integrating real functions with second derivitive.
+        Cheap method for integrating real functions with
+        second derivitive.
         """
         
         mid = x + (y-x) / 2
@@ -100,9 +110,10 @@ class QTree:
 
     def funnel(self, func: DiscreteFunction) -> DiscreteFunctionFunnel:
         """
-        Successively averages a function on N elements, as specified by the
-        qtree.
+        Successively averages a function on N elements,
+        as specified by the qtree.
         """
+
         f = np.array(func)
         
         arr = [func]
@@ -118,12 +129,16 @@ class QTree:
         integrator: Integrator | None = None,
         interval: Interval = Interval(0,1)
     ) -> DiscreteFunction:
+        """
+        Successively approximates the input function by
+        functions, locally constant on successive refinements. 
+        """
 
         if integrator is None:
             integrator = self._trapezoid_integrator
 
         a,b = interval
-        
+
         _ps = a + (b-a) * np.arange(self.N)/self.N
         points = np.append(_ps, [b])
 
@@ -136,6 +151,10 @@ class QTree:
         return f"{self.Q}-Tree(height={self.height}, leaves={self.N:_})"
 
 class NAryTree(QTree):
+    """
+    A simple N-ary tree.
+    """
+    
     def __init__(self, regularity, height):
         self.regularity = regularity
 

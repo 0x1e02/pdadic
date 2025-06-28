@@ -1,4 +1,6 @@
-
+"""
+Models certain kinds of operators acting on a Q-adic tree.
+"""
 
 
 # class QTreeOperator:

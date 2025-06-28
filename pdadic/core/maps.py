@@ -1,3 +1,11 @@
+"""
+Implements the two types QTreeMap and QTreeDecomposition.
+
+The former represents a map on the leaves of a short q-adic
+tree before component analysis. The latter represents a
+similar map after compenent analysis.
+"""
+
 from __future__ import annotations
 import numpy as np
 
@@ -12,22 +20,32 @@ from .types import DiscreteFunctionFunnel
 from .types import RealFunction
 from .types import Integrator
 
-
 class QTreeMap:
-    def __init__(self, qtree: QTree, values: DiscreteFunctionFunnel):
-        assert qtree.height == len(values) - 1, ""
+    """
+    Represents a map in the reals or complex with domain
+    as the set of leaves of a short Q-adic tree.
+
+    The internal data is a function on a successive refinement.
+    """
+
+    def __init__(self, qtree: QTree, values: DiscreteFunctionFunnel) -> None:
+        """
+        Factors common functionality for instanciation.
+        """
+        assert qtree.height == len(values) - 1
         assert all( zip(qtree.Q, ))
         
         self.domain = qtree
         self.values = values
 
-    def as_arrays(self):
-        return [
-            np.array(arr) for arr in self.values
-        ]
-
     @classmethod
     def from_tuple(cls, qtree: QTree, func: DiscreteFunction) -> QTreeMap:
+        """
+        Instanciates a QTreeMap by passing a function on a
+        set of leaves and combine these by the data of the
+        short Q-adic tree.
+        """
+
         return cls(qtree, qtree.funnel(func))
 
     @classmethod
@@ -37,11 +55,29 @@ class QTreeMap:
         func: RealFunction,
         **kwargs
     ) -> QTreeMap:
+        """
+        Instanciates a QTreeMap by passing a real python
+        function and discretizing it with the logic provided
+        by the short Q-adic tree.
+        """
 
         return cls.from_tuple(qtree, qtree.discretize(func, **kwargs))
     
+    def as_arrays(self) -> list[np.ndarray]:
+        """
+        Exports the internal data as a list of numpy arrays.
+        """
+
+        return [
+            np.array(arr) for arr in self.values
+        ]
 
     def to_decomposition(self) -> QTreeDecomposition:
+        """
+        Extracts the wavelets contributions for each layer
+        of the Q-adic tree and yields a QTreeDecomposition.
+        """
+
         mean, *tail = self.values
         contributions = []
 
@@ -55,17 +91,44 @@ class QTreeMap:
     
 
 class QTreeDecomposition:
+    """
+    Represents a map in the reals or complex with domain
+    as the set of leaves of a short Q-adic tree.
+
+    The internal data is a mean value and a list of
+    functions each defined on a layer of a Q-adic tree.
+    """
     def __init__(self,
         domain: QTree,
         mean: Number,
         contributions: list[DiscreteFunction]
-    ):
+    ) -> None:
+        """
+        Instanciates a QTreeDecomposition by passing the
+        mean and contributions from each layer.
+        """
+
         self.domain = domain
         self.mean = mean
         self.contributions = contributions
 
+    def as_arrays(self) -> list[np.ndarray]:
+        """
+        Exports the internal data as a list of numpy arrays.
+        """
+
+        layers = list(self.contributions)
+        layers.insert(0, [self.mean])
+
+        return [
+            np.array(arr) for arr in layers
+        ]
 
     def to_map(self) -> QTreeMap:
+        """
+        Combines the contributions for each layer
+        and the mean to yields a QTreeMap.
+        """
         _f = np.array([self.mean], dtype=np.complex128)
 
         buff = [list(_f)]

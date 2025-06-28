@@ -1,3 +1,7 @@
+"""
+Defines strategies for exporting plots.
+"""
+
 import io
 
 from IPython.display import Image, SVG

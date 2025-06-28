@@ -1,3 +1,8 @@
+"""
+Defines a common interfaces for discussing computations
+implemented in core.
+"""
+
 import math
 import numpy as np
 import matplotlib as mpl
@@ -6,6 +11,7 @@ from dataclasses import dataclass
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_nbagg import FigureCanvasNbAgg as FigureCanvas
+
 
 @dataclass
 class PlotParameters:

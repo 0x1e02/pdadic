@@ -1,3 +1,7 @@
+"""
+Implements basic profiling.
+"""
+
 import time
 import tracemalloc
 
@@ -9,6 +13,21 @@ from . import QTreeMap
 @dataclass
 class TimeResult:
     eta: float = float('nan')
+
+
+@contextmanager
+def timer():
+    """
+    Syntax sugar for runtime profiling.
+    """
+    result = TimeResult()
+
+    start = time.perf_counter()
+    yield result
+    eta = time.perf_counter() - start
+    
+    result.eta = eta
+
 
 class Timer:
     class Eta:
@@ -80,18 +99,3 @@ def profile_qtree(qtree, func):
     print()
 
     return qmap, qdecomp, qrecomp
-
-
-
-@contextmanager
-def timer():
-    """
-    Syntax sugar for runtime profiling.
-    """
-    result = TimeResult()
-
-    start = time.perf_counter()
-    yield result
-    eta = time.perf_counter() - start
-    
-    result.eta = eta

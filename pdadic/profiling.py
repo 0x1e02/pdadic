@@ -9,10 +9,6 @@ from dataclasses import dataclass
 class TimeResult:
     eta: float = float('nan')
 
-
-
-
-
 class Timer:
     class Eta:
         def __init__(self, name):
@@ -84,8 +80,7 @@ def profile_qtree(qtree, func):
 
     return qmap, qdecomp, qrecomp
 
-def discuss_error(qmap, qrecomp):
-    pass
+
 
 @contextmanager
 def timer():
@@ -99,7 +94,3 @@ def timer():
     eta = time.perf_counter() - start
     
     result.eta = eta
-
-with timer() as res:
-    ...
-

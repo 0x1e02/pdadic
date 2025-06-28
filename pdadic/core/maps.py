@@ -21,6 +21,11 @@ class QTreeMap:
         self.domain = qtree
         self.values = values
 
+    def as_arrays(self):
+        return [
+            np.array(arr) for arr in self.values
+        ]
+
     @classmethod
     def from_tuple(cls, qtree: QTree, func: DiscreteFunction) -> QTreeMap:
         return cls(qtree, qtree.funnel(func))

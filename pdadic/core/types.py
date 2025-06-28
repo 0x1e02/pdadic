@@ -2,7 +2,6 @@
 Internally used type declarations.
 """
 
-
 import numpy.typing as npt
 from typing import Callable
 from typing import Sequence

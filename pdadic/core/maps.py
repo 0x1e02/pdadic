@@ -7,6 +7,7 @@ similar map after compenent analysis.
 """
 
 from __future__ import annotations
+
 import numpy as np
 
 from typing import Callable

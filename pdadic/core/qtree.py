@@ -1,6 +1,7 @@
 """
 Implements the QTree class.
 """
+
 import numpy as np
 
 from .types import Number
@@ -149,6 +150,7 @@ class QTree:
 
     def __repr__(self):
         return f"{self.Q}-Tree(height={self.height}, leaves={self.N:_})"
+
 
 class NAryTree(QTree):
     """

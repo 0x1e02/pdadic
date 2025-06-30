@@ -13,7 +13,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_nbagg import FigureCanvasNbAgg as FigureCanvas
 
 from .. import QTreeMap
-from .. import QTreeOperator
+from .. import QTreeKernelOperator
 from ..profiling import profile_equilibrium
 
 
@@ -140,7 +140,7 @@ class EvolutionDiscussion(Discussion):
     )
 
     def __init__(self,
-        qoperator: QTreeOperator,
+        qoperator: QTreeKernelOperator,
         initial_value: QTreeMap,
         dilation: float | None = None,
         **kwargs
@@ -157,7 +157,7 @@ class EvolutionDiscussion(Discussion):
         else:
             slices = qoperator.get_slices(
                 initial_value,
-                ts = self.T * QTreeOperator.get_geometric_ts(len(initial_value), dilation)
+                ts = self.T * QTreeKernelOperator.get_geometric_ts(len(initial_value), dilation)
             )
             
 

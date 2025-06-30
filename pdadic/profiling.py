@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 from . import QTree
 from . import QTreeMap
-from . import QTreeOperator
+from . import QTreeKernelOperator
 
 @dataclass
 class TimeResult:
@@ -132,7 +132,7 @@ def profile_qtree(qtree: QTree, func):
     return qmap, qdecomp, qrecomp
 
 def profile_equilibrium(
-    qoperator: QTreeOperator,
+    qoperator: QTreeKernelOperator,
     initial_value: QTreeMap,
     eps:float = 1e-3,
     T0:float = 1,

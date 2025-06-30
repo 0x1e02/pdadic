@@ -15,52 +15,16 @@ from typing import Generator
 from .qtree import QTree
 from .maps import QTreeMap
 from .types import RealFunction
+from .types import Number
 
-
-class QTreeOperator:
-    """
-    Models an operator given by a kernel function.
-    
-    Represents a linear operator on a QTree structure,
-    defined via a kernel function.
-
-    The operator acts on functions represented in the QTree
-    basis by applying a kernel to pairwise distances in the
-    Q-adic hierarchy, yielding a diagonalizable operator
-    with an explicit spectral representation.
-    """
-
-    def __init__(self, qtree: QTree, kernel: RealFunction) -> None:
-        self.domain = qtree
-        self._kernel = kernel
+class AbstractQTreeOperator:
+    def __init__(self, qtree: QTree) -> None:
+        self.qtree = qtree
 
     @property
     def eigenvalues(self) -> np.ndarray:
-        """
-        Compute the eigenvalues of the operator using a
-        distance-based discretization over the QTree domain.
-
-        The result is a diagonal spectrum derived from
-        evaluating the kernel at scaled Q-adic intervals
-        and applying weighted cumulative sums.
-
-        Returns:
-            np.ndarray: Array of eigenvalues aligned with
-                the QTree basis.
-        """
-
-        cohort = self.domain.Qc
-        c = cohort - np.append([1], cohort[:-1])
-        d = 1 / cohort
+        return NotImplemented
     
-        kd = np.array([self._kernel(x) for x in d])
-    
-        arr = [
-            d[i] * ( c[:i] @ kd[:i] + kd[i])
-            for i in range(len(self.domain.Q))
-        ]
-        return np.array(arr)
-
     @staticmethod
     def get_geometric_ts(n:int, r: float = 0) -> np.ndarray:
         """
@@ -88,8 +52,7 @@ class QTreeOperator:
         sgeom = sgeom / sgeom[-1]
 
         return np.concatenate([[0], sgeom[:-1]])
-        
-
+    
     def get_slice(
         self,
         T: float,
@@ -169,7 +132,7 @@ class QTreeOperator:
             (T_end - T_start) * np.arange(0, count)/count
         
         return ts, self.get_slices(initial_value, ts)
-
+    
     def get_time_series(
         self,
         initial_value: QTreeMap,
@@ -235,59 +198,64 @@ class QTreeOperator:
             
             offset += chunk
 
-def pow_kernel_operator(qtree: QTree, alpha: float) -> QTreeOperator:
+
+class QTreeDiagonalOperator(AbstractQTreeOperator):
+    def __init__(self, qtree: QTree, eigenvalues: np.ndarray):
+        assert len(eigenvalues) == qtree.height, \
+            f"The list {eigenvalues=} must have length {qtree.height=}."
+
+        self._eigenvalues = eigenvalues
+        
+        super().__init__(qtree)
+
+    @property
+    def eigenvalues(self):
+        return self._eigenvalues
+
+
+class QTreeKernelOperator(AbstractQTreeOperator):
     """
-    Construct a QTreeOperator with a power-law kernel of
-    the form |x|^{-alpha}.
-
-    This kernel emphasizes long-range interactions and is
-    singular at zero.
-
-    Parameters:
-        qtree (QTree): The QTree structure on which the
-            operator acts.
-        alpha (float): Positive exponent controlling the
-            decay rate. Must be > 0.
-
-    Returns:
-        QTreeOperator: An operator on the given QTree using
-            the power-law kernel.
-
-    Raises:
-        AssertionError: If `alpha` is not strictly positive.
-    """
-    assert alpha > 0 
-
-    def kernel(x):
-        return np.abs(x) ** (-alpha)
+    Models an operator given by a kernel function.
     
-    return QTreeOperator(qtree, kernel)
+    Represents a linear operator on a QTree structure,
+    defined via a kernel function.
 
-
-def exp_kernel_operator(qtree: QTree, sigma: float) -> QTreeOperator:
+    The operator acts on functions represented in the QTree
+    basis by applying a kernel to pairwise distances in the
+    Q-adic hierarchy, yielding a diagonalizable operator
+    with an explicit spectral representation.
     """
-    Construct a QTreeOperator with a Gaussian-like
-    exponential kernel of the form exp(-x² / σ²).
 
-    This kernel is smooth, symmetric, and decays rapidly
-    with distance, favoring local interactions.
+    def __init__(self, qtree: QTree) -> None:
+        self.domain = qtree
+        # self._kernel = kernel
 
-    Parameters:
-        qtree (QTree): The QTree structure on which the
-            operator acts.
-        sigma (float): Positive scale parameter controlling
-            the width of the kernel. Must be > 0.
+    def _kernel(self, x: float) -> Number:
+        return NotImplemented
 
-    Returns:
-        QTreeOperator: An operator on the given QTree using
-            the exponential kernel.
+    @property
+    def eigenvalues(self) -> np.ndarray:
+        """
+        Compute the eigenvalues of the operator using a
+        distance-based discretization over the QTree domain.
 
-    Raises:
-        AssertionError: If `sigma` is not strictly positive.
-    """
-    assert sigma > 0
+        The result is a diagonal spectrum derived from
+        evaluating the kernel at scaled Q-adic intervals
+        and applying weighted cumulative sums.
 
-    def kernel(x):
-        return 1/np.sqrt(np.pi * sigma**2) * np.exp(- x**2 / sigma**2)
+        Returns:
+            np.ndarray: Array of eigenvalues aligned with
+                the QTree basis.
+        """
 
-    return QTreeOperator(qtree, kernel)
+        cohort = self.domain.Qc
+        c = cohort - np.append([1], cohort[:-1])
+        d = 1 / cohort
+    
+        kd = np.array([self._kernel(x) for x in d])
+    
+        arr = [
+            d[i] * ( c[:i] @ kd[:i] + kd[i])
+            for i in range(len(self.domain.Q))
+        ]
+        return np.array(arr)

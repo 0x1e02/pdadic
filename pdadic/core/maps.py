@@ -38,6 +38,12 @@ class QTreeMap:
         
         self.domain = qtree
         self.values = values
+    
+    def __iter__(self):
+        return iter(self.as_arrays()[-1])
+
+    def __len__(self):
+        return self.domain.N
 
     @classmethod
     def from_tuple(cls, qtree: QTree, func: DiscreteFunction) -> QTreeMap:
@@ -113,6 +119,7 @@ class QTreeDecomposition:
         self.mean = mean
         self.contributions = contributions
 
+
     def as_arrays(self) -> list[np.ndarray]:
         """
         Exports the internal data as a list of numpy arrays.
@@ -124,6 +131,29 @@ class QTreeDecomposition:
         return [
             np.array(arr) for arr in layers
         ]
+
+    def transform(self, factors) -> QTreeDecomposition:
+        """
+        Scale the decomposition's contributions layer-wise
+        by given factors.
+
+        Args:
+            factors (array-like): Multiplicative factors
+                applied to each component of the decomposition
+                (excluding the mean).
+
+        Returns:
+            QTreeDecomposition: A new decomposition with
+                scaled contributions.
+        """
+        return self.__class__(
+            domain = self.domain,
+            mean = self.mean,
+            contributions = [
+                c * g
+                for c,g in zip(factors, self.as_arrays()[1:])
+            ]
+        )
 
     def to_map(self) -> QTreeMap:
         """

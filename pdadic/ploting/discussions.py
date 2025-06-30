@@ -12,26 +12,30 @@ from dataclasses import dataclass
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_nbagg import FigureCanvasNbAgg as FigureCanvas
 
+from .. import QTreeMap
+from .. import QTreeOperator
+from ..profiling import profile_equilibrium
+
 
 @dataclass
 class PlotParameters:
-    columns         = 2
-    subplot_width   = 3
-    subplot_height  = 2
+    columns: int            = 2
+    subplot_width: float    = 3
+    subplot_height: float   = 2
     
-    margin_x        = .1
-    margin_y        = .1
+    margin_x: float         = .1
+    margin_y: float         = .1
 
-    margin_left     = None
-    margin_right    = None
-    margin_top      = None
-    margin_bottom   = None
+    margin_left: float | None   = None
+    margin_right: float | None  = None
+    margin_top: float | None    = None
+    margin_bottom: float | None = None
 
-    wspace          = .3
-    hspace          = .4
+    wspace: float           = .3
+    hspace: float           = .4
 
-    title           = None
-    title_size      = 16
+    title: str | None       = None
+    title_size: int         = 16
 
     def __post_init__(self):
         if self.margin_left is None:
@@ -48,14 +52,18 @@ class PlotParameters:
 
 
 class AbstractDiscussion:
+
+    DEFAULT_PARAMS = PlotParameters()
+
     def __init__(self,
         data: list[np.ndarray],
         params: None | PlotParameters = None
     ):
         self.data = data
+        self.params = params
 
         if params is None:
-            self.params = PlotParameters()
+            self.params = self.DEFAULT_PARAMS
 
     def single(self, title=None):
         K = len(self.data)
@@ -123,3 +131,48 @@ class ErrorDiscussion(AbstractDiscussion):
 
         ax.bar(xs, np.real(frame), rasterized=True)
         ax.bar(xs, np.imag(frame), alpha=.5, rasterized=True)
+
+class EvolutionDiscussion(Discussion):
+    
+    DEFAULT_PARAMS = PlotParameters(
+        subplot_height  = 4,
+        subplot_width   = 6
+    )
+
+    def __init__(self,
+        qoperator: QTreeOperator,
+        initial_value: QTreeMap,
+        dilation: float | None = None,
+        **kwargs
+    ):
+        self.T = profile_equilibrium(qoperator, initial_value)
+
+        if dilation is None:
+            _, slices = qoperator.get_linear_slices(
+                initial_value,
+                T_start=0,
+                T_end=self.T,
+                count=len(initial_value)
+            )
+        else:
+            slices = qoperator.get_slices(
+                initial_value,
+                ts = self.T * QTreeOperator.get_geometric_ts(len(initial_value), dilation)
+            )
+            
+
+        frame = np.array([list(s) for s in slices])
+        
+            
+        super().__init__([frame], **kwargs)
+
+    def _plot(self, ax, frame):
+        N = len(frame)
+        ax.matshow(np.real(frame))
+
+        ax.set_xticks([0, N-1])
+        ax.set_xticklabels(["0", "1"])
+
+        ax.set_yticks([0, N-1])
+        ax.set_yticklabels(["0", f"{self.T:.2f}"])
+        

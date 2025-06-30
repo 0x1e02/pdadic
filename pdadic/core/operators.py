@@ -14,6 +14,7 @@ from typing import Generator
 
 from .qtree import QTree
 from .maps import QTreeMap
+from .types import RealFunction
 
 
 class QTreeOperator:
@@ -29,7 +30,7 @@ class QTreeOperator:
     with an explicit spectral representation.
     """
 
-    def __init__(self, qtree: QTree, kernel):
+    def __init__(self, qtree: QTree, kernel: RealFunction) -> None:
         self.domain = qtree
         self._kernel = kernel
 
@@ -89,7 +90,11 @@ class QTreeOperator:
         return np.concatenate([[0], sgeom[:-1]])
         
 
-    def get_slice(self, T, initial_value: QTreeMap) -> QTreeMap:
+    def get_slice(
+        self,
+        T: float,
+        initial_value: QTreeMap
+    ) -> QTreeMap:
         """
         Solve the associated differential equiationfor at
         a single time `T`.
@@ -230,7 +235,7 @@ class QTreeOperator:
             
             offset += chunk
 
-def pow_kernel_operator(qtree: QTree, alpha: float):
+def pow_kernel_operator(qtree: QTree, alpha: float) -> QTreeOperator:
     """
     Construct a QTreeOperator with a power-law kernel of
     the form |x|^{-alpha}.
@@ -259,7 +264,7 @@ def pow_kernel_operator(qtree: QTree, alpha: float):
     return QTreeOperator(qtree, kernel)
 
 
-def exp_kernel_operator(qtree: QTree, sigma:float):
+def exp_kernel_operator(qtree: QTree, sigma: float) -> QTreeOperator:
     """
     Construct a QTreeOperator with a Gaussian-like
     exponential kernel of the form exp(-x² / σ²).
@@ -283,6 +288,6 @@ def exp_kernel_operator(qtree: QTree, sigma:float):
     assert sigma > 0
 
     def kernel(x):
-        return np.exp(- x**2 / sigma**2)
+        return 1/np.sqrt(np.pi * sigma**2) * np.exp(- x**2 / sigma**2)
 
     return QTreeOperator(qtree, kernel)

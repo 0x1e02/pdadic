@@ -50,3 +50,6 @@ class SVGExporter(Exporter):
             _format = "svg",
             _display = SVG 
         )
+
+def show(fig):
+    return SVGExporter(fig).show()

@@ -4,6 +4,8 @@ Implements the QTree class.
 
 import numpy as np
 
+from typing import Type
+
 from .types import Number
 from .types import DiscreteFunction
 from .types import DiscreteFunctionFunnel
@@ -18,12 +20,12 @@ na = None
 inv = lambda A: np.conj(A.T)
 
 
-class Layer:
+class AbstractLayer:
     """
     Encapsulates layer based operations for the QTree class.
     """
 
-    def __init__(self, n: int, q: int, real: bool = False):
+    def __init__(self, n: int, q: int):
         """
         Specifies a layer by the total number of nodes and
         the parent degree.
@@ -34,6 +36,28 @@ class Layer:
 
         self.n = n
         self.q = q
+
+    def get_component(self, func: DiscreteFunction) -> DiscreteFunction:
+        return NotImplemented
+        
+class FastLayer(AbstractLayer):
+    
+    def get_component(self, func: DiscreteFunction) -> DiscreteFunction:
+        assert len(func) == self.n, f"{len(func)=} is not {self.n}"
+        f = np.array(func)
+        
+        # Group q elements and put them horizontally
+        fs = f.reshape((self.n//self.q, self.q))
+        means = np.mean(fs, axis=1)
+
+        comps = fs - means[:,None]
+        return comps.flatten()
+        # return None
+    
+
+class MatMulLayer(AbstractLayer):
+    def __init__(self, *args, real: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
         
         W = self._get_fft_mat(self.q)
         self.W = np.real(W) if real else W
@@ -74,6 +98,12 @@ class Layer:
         g = (self.W[:,1:] @ coeff[1:,:]).T
         return g.flatten()
 
+    def get_component(self, func: DiscreteFunction) -> DiscreteFunction:
+        coeff = self.get_coefficients(func)
+        g = self.get_contribution(coeff)
+
+        return g
+
 
 class QTree:
     """
@@ -85,7 +115,7 @@ class QTree:
     be a single root node without any edges.
     """
 
-    def __init__(self, Q: list[int]):
+    def __init__(self, Q: list[int], * , Layer: Type[AbstractLayer] | None = None):
         """
         Instanciates the QTree and precomputes some attributes.
         """
@@ -95,6 +125,10 @@ class QTree:
         self.N = np.prod(Q)
         
         self.height = len(Q)
+
+        if Layer is None:
+            # Layer = MatMulLayer
+            Layer = FastLayer
 
         self.layers = [Layer(qc,q) for q, qc in zip(self.Q, self.Qc)]
 

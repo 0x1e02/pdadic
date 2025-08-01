@@ -10,3 +10,5 @@ from .operators import QTreeDiagonalOperator
 
 from .qtree import QTree
 from .qtree import NAryTree
+from .qtree import FastLayer
+from .qtree import MatMulLayer

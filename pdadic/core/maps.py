@@ -89,10 +89,7 @@ class QTreeMap:
         contributions = []
 
         for fun, layer in zip(tail, self.domain.layers):
-            coeff = layer.get_coefficients(fun)
-            g = layer.get_contribution(coeff)
-            
-            contributions.append(g)
+            contributions.append(layer.get_component(fun))
 
         return QTreeDecomposition(self.domain, mean[0], contributions)
     

@@ -6,6 +6,18 @@ from . import QTreeKernelOperator
 
 from .core.types import Number
 
+def gaussian(k):
+    def func(x):
+        return
+
+    return func
+
+def sigmoid(k):
+    def func(x):
+        return
+    
+    return func
+
 
 class ConstantKernelOperator(QTreeKernelOperator):
     def __init__(self, qtree: QTree, const: float) -> None:

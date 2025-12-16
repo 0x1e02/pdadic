@@ -146,6 +146,7 @@ class EvolutionDiscussion(Discussion):
         **kwargs
     ):
         self.T = profile_equilibrium(qoperator, initial_value)
+        print(f"{self.T=}")
 
         if dilation is None:
             _, slices = qoperator.get_linear_slices(

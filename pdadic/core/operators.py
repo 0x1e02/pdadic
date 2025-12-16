@@ -42,7 +42,7 @@ class AbstractQTreeOperator:
             np.ndarray: A 1D array of shape (n,) containing
                 the time steps in [0, 1).
         """
-        assert r > -1, f"The groth coefficient {r=} must be > -1."
+        assert r > -1, f"The growth coefficient {r=} must be > -1."
         
         # Compute a geometric progression
         geom = (1+r) ** np.arange(n)
@@ -59,7 +59,7 @@ class AbstractQTreeOperator:
         initial_value: QTreeMap
     ) -> QTreeMap:
         """
-        Solve the associated differential equiationfor at
+        Solve the associated evolution equation for at
         a single time `T`.
 
         Args:

@@ -41,7 +41,6 @@ class AbstractLayer:
         return NotImplemented
         
 class FastLayer(AbstractLayer):
-    
     def get_component(self, func: DiscreteFunction) -> DiscreteFunction:
         assert len(func) == self.n, f"{len(func)=} is not {self.n}"
         f = np.array(func)

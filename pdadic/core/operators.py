@@ -248,14 +248,17 @@ class QTreeKernelOperator(AbstractQTreeOperator):
                 the QTree basis.
         """
 
-        cohort = self.domain.Qc
-        c = cohort - np.append([1], cohort[:-1])
-        d = 1 / cohort
-    
-        kd = np.array([self._kernel(x) for x in d])
-    
+        # length: h+1
+        mass = np.append([1], 1 / self.domain.Qc)
+        kernel_values = np.array([self._kernel(x) for x in mass])
+        
+        # length: h
+        mass_diff = mass[:-1] - mass[1:]
+
         arr = [
-            d[i] * ( c[:i] @ kd[:i] + kd[i])
-            for i in range(len(self.domain.Q))
+            kernel_values[:r] @ mass_diff[:r]
+                + kernel_values[r] * mass[r]
+            for r in range(len(self.domain.Q))
         ]
+        # assert len(arr) == len(self.domain.Q)
         return np.array(arr)

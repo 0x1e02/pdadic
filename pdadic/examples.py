@@ -3,6 +3,7 @@ import numpy as np
 
 from . import QTree
 from . import QTreeKernelOperator
+from . import NormalizedQTreeOperator
 
 from .core.types import Number
 
@@ -58,8 +59,11 @@ class PowerKernelOperator(QTreeKernelOperator):
     def _kernel(self, x: float) -> Number:
         return np.abs(x)**(-self.alpha)
 
+    def __str__(self):
+        return f"PowerKernel(alpha: {self.alpha})"
 
-class GaussianKernelOperator(QTreeKernelOperator):
+
+class GaussianKernelOperator(NormalizedQTreeOperator, QTreeKernelOperator):
     def __init__(self, qtree: QTree, sigma: float) -> None:
         """
         Construct a QTreeOperator with a Gaussian-like
@@ -88,4 +92,8 @@ class GaussianKernelOperator(QTreeKernelOperator):
         super().__init__(qtree)
 
     def _kernel(self, x: float) -> Number:
-        return self._normalization_factor * np.exp(np.abs(x)**2 / self.sigma**2)
+        return self._normalization_factor * np.exp(-(np.abs(x) / self.sigma)**2)
+        # return np.exp(-(np.abs(x) / self.sigma)**2)
+
+    def __str__(self):
+        return f"GaussianKernel(sigma: {self.sigma})"

@@ -199,6 +199,19 @@ class AbstractQTreeOperator:
             offset += chunk
 
 
+class NormalizedQTreeOperator(AbstractQTreeOperator):
+    """
+    Abstract kind of operator, which based on a concrete definition normalizes
+    the eigenvalues such that the 0-th eigenvalue is always 1.
+
+    Useful for profilining.
+    """
+    @property
+    def eigenvalues(self) -> np.ndarray:
+        evs = super().eigenvalues
+        return evs / evs[0]
+
+
 class QTreeDiagonalOperator(AbstractQTreeOperator):
     def __init__(self, qtree: QTree, eigenvalues: np.ndarray):
         assert len(eigenvalues) == qtree.height, \

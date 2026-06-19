@@ -41,7 +41,7 @@ class PowerKernelOperator(QTreeKernelOperator):
             qtree (QTree): The QTree structure on which the
                 operator acts.
             alpha (float): Positive exponent controlling the
-                decay rate. Must be > 0.
+                decay rate. Must be < 1.
 
         Returns:
             QTreeOperator: An operator on the given QTree using
@@ -50,7 +50,7 @@ class PowerKernelOperator(QTreeKernelOperator):
         Raises:
             AssertionError: If `alpha` is not strictly positive.
         """
-        assert alpha > 0
+        assert alpha < 1
 
         self.alpha = alpha
         super().__init__(qtree)

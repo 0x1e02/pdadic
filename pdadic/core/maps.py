@@ -111,6 +111,10 @@ class QTreeDecomposition:
         Instanciates a QTreeDecomposition by passing the
         mean and contributions from each layer.
         """
+        assert domain.height == len(contributions), \
+            f"Domain height and {len(contributions):=} must match!"
+        assert all(len(con) == qc for qc, con in zip(domain.Qc, contributions)), \
+            f"{domain.Qc:=} and {[len(c) for c in contributions]:=} must match!"
 
         self.domain = domain
         self.mean = mean

@@ -171,9 +171,15 @@ class EvolutionDiscussion(Discussion):
         N = len(frame)
         ax.matshow(np.real(frame))
 
+        ax.set_xlabel("Space")
         ax.set_xticks([0, N-1])
         ax.set_xticklabels(["0", "1"])
 
+        ax.set_ylabel("Time")
+        ax.yaxis.set_ticks_position("right")
         ax.set_yticks([0, N-1])
-        ax.set_yticklabels(["0", f"{self.T:.2f}"])
+        if np.log10(self.T) < 2:
+            ax.set_yticklabels(["0", f"{self.T:.2f}"])
+        else:
+            ax.set_yticklabels(["0", f"{self.T:.1E}"])
         

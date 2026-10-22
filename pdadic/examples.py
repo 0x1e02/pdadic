@@ -1,4 +1,4 @@
-
+import math
 import numpy as np
 
 from . import QTree
@@ -63,7 +63,7 @@ class PowerKernelOperator(QTreeKernelOperator):
         return f"PowerKernel(alpha: {self.alpha})"
 
 
-class GaussianKernelOperator(NormalizedQTreeOperator, QTreeKernelOperator):
+class GaussianKernelOperator(QTreeKernelOperator):
     def __init__(self, qtree: QTree, sigma: float) -> None:
         """
         Construct a QTreeOperator with a Gaussian-like
@@ -88,12 +88,43 @@ class GaussianKernelOperator(NormalizedQTreeOperator, QTreeKernelOperator):
         assert sigma > 0
 
         self.sigma = sigma
-        self._normalization_factor = 1 / np.sqrt(np.pi * self.sigma**2)
+        self._normalization_factor = 1 / np.sqrt(2* np.pi * self.sigma**2)
         super().__init__(qtree)
 
     def _kernel(self, x: float) -> Number:
-        return self._normalization_factor * np.exp(-(np.abs(x) / self.sigma)**2)
+        return self._normalization_factor * np.exp(-(np.abs(x) / (np.sqrt(2) * self.sigma))**2)
         # return np.exp(-(np.abs(x) / self.sigma)**2)
 
     def __str__(self):
         return f"GaussianKernel(sigma: {self.sigma})"
+
+class TruncatedGaussianKernelOperator(QTreeKernelOperator):
+    def __init__(self,
+            qtree: QTree,
+            sigma: float,
+            mu: float = 0,
+            a:float = 0,
+            b:float = 1
+        ) -> None:
+        
+        assert sigma > 0
+        assert a < b
+
+        self.sigma=sigma
+        self.mu=mu
+        self.a = a
+        self.b = b
+
+        self._normalization_factor = \
+            1 / (sigma * (self._cdf((b - mu)/sigma) - self._cdf((a - mu)/sigma) ))
+        
+        super().__init__(qtree)
+
+    def _gauss(self, x:float) -> float:
+        return 1 / np.sqrt(2 * np.pi) * np.exp(-1/2 * x**2)
+
+    def _cdf(self, x: float) -> float:
+        return 1/2 * (1 + math.erf(x/np.sqrt(2)))
+    
+    def _kernel(self, x: float) -> Number:
+        return self._normalization_factor * self._gauss((x-self.mu)/self.sigma)

@@ -217,7 +217,7 @@ class QTreeDiagonalOperator(AbstractQTreeOperator):
         assert len(eigenvalues) == qtree.height, \
             f"The list {eigenvalues=} must have length {qtree.height=}."
 
-        self._eigenvalues = eigenvalues
+        self._eigenvalues = np.array(eigenvalues)
         
         super().__init__(qtree)
 

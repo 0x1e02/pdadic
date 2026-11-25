@@ -132,7 +132,24 @@ class ErrorDiscussion(AbstractDiscussion):
         ax.bar(xs, np.real(frame), rasterized=True)
         ax.bar(xs, np.imag(frame), alpha=.5, rasterized=True)
 
-class EvolutionDiscussion(Discussion):
+class HeatMapDiscussion(Discussion):
+    def _plot(self, ax, frame):
+        N = len(frame)
+        ax.matshow(np.real(frame))
+
+        ax.set_xlabel("Space")
+        ax.set_xticks([0, N-1])
+        ax.set_xticklabels(["0", "1"])
+
+        ax.set_ylabel("Time")
+        ax.yaxis.set_ticks_position("right")
+        ax.set_yticks([0, N-1])
+        # if np.log10(self.T) < 2:
+        #     ax.set_yticklabels(["0", f"{self.T:.2f}"])
+        # else:
+        #     ax.set_yticklabels(["0", f"{self.T:.1E}"])
+        
+class EvolutionDiscussion(HeatMapDiscussion):
     
     DEFAULT_PARAMS = PlotParameters(
         subplot_height  = 4,
@@ -167,19 +184,11 @@ class EvolutionDiscussion(Discussion):
             
         super().__init__([frame], **kwargs)
 
+
     def _plot(self, ax, frame):
-        N = len(frame)
-        ax.matshow(np.real(frame))
+        super()._plot(ax, frame)
 
-        ax.set_xlabel("Space")
-        ax.set_xticks([0, N-1])
-        ax.set_xticklabels(["0", "1"])
-
-        ax.set_ylabel("Time")
-        ax.yaxis.set_ticks_position("right")
-        ax.set_yticks([0, N-1])
         if np.log10(self.T) < 2:
             ax.set_yticklabels(["0", f"{self.T:.2f}"])
         else:
             ax.set_yticklabels(["0", f"{self.T:.1E}"])
-        

@@ -244,6 +244,10 @@ class QTreeKernelOperator(AbstractQTreeOperator):
         # self._kernel = kernel
 
     def _kernel(self, x: float) -> Number:
+        """
+        This is an implementation Detail, expected to be
+        provided by the user of this interface.
+        """
         return NotImplemented
 
     @property

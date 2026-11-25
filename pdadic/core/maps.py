@@ -45,6 +45,17 @@ class QTreeMap:
     def __len__(self):
         return self.domain.N
 
+    def kill_mean(self) -> tuple[float, QTreeMap]:
+        """
+        Produces a QTreeMap with mean zero from the given QTreeMap.
+        """
+        decomp = self.to_decomposition()
+        mean = decomp.mean
+
+        decomp.mean = 0
+
+        return mean, decomp.to_map()
+
     @classmethod
     def from_tuple(cls, qtree: QTree, func: DiscreteFunction) -> QTreeMap:
         """
